@@ -5,36 +5,28 @@ public class Health : MonoBehaviour
 {
 	public event System.Action<Health> KilledEvent;
 
-	public event System.Action<Health> RespawnedEvent;
+	[SerializeField]
+	private GameObject respawnerPrefab;
 
 	[SerializeField]
 	private float defaultAmount;
 
-	[SerializeField]
-	private float respawnDelay = 1f;
-
 	public float Amount { get { return amount; } }
 	private float amount;
 
-	private float respawnTimeStarted = -1f;
-
-	private bool isRespawning = false;
+	public Respawner Respawner { get { return respawner; } }
+	private Respawner respawner;
 
 	// Use this for initialization
 	void Start () 
 	{
+		respawner = ((GameObject)Instantiate(respawnerPrefab)).GetComponent<Respawner>();
+
 		Reset ();
 	}
 
 	void Update()
 	{
-		if (isRespawning
-			&& Time.time - respawnTimeStarted > respawnDelay)
-		{
-			StopRespawnTimer();
-
-			Respawn();
-		}
 	}
 	
 	public void Damage(float amount)
@@ -50,8 +42,6 @@ public class Health : MonoBehaviour
 	public void Reset()
 	{
 		amount = defaultAmount;
-
-		StopRespawnTimer();
 	}
 
 	public void Kill()
@@ -62,33 +52,7 @@ public class Health : MonoBehaviour
 		{
 			KilledEvent(this);
 		}
-
-		StartRespawnTimer();
-	}
-
-	public void Respawn()
-	{
-		Debug.Log("RESPAWN");
-
-		if (RespawnedEvent != null)
-		{
-			RespawnedEvent(this);
-		}
-	}
-
-	private void StartRespawnTimer()
-	{
-		Debug.Log("START RESPAWN");
-
-		isRespawning = true;
-
-		respawnTimeStarted = Time.time;
-	}
-
-	private void StopRespawnTimer()
-	{
-		isRespawning = false;
-
-		respawnTimeStarted = -1f;
+		
+		respawner.StartRespawning();
 	}
 }

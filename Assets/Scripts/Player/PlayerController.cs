@@ -106,6 +106,7 @@ public class PlayerController : MonoBehaviour
 		fuelComponent.Reset();
 
 		healthComponent.Reset();
+		healthComponent.KilledEvent += OnKilled;
 
 		laserComponent.Reset();
 
@@ -136,13 +137,19 @@ public class PlayerController : MonoBehaviour
 
 	private void OnKilled(Health sender)
 	{
+		healthComponent.KilledEvent -= OnKilled;
+
 		Debug.Log(name + " KILLED");
 
 		gameObject.SetActive(false);
+
+		healthComponent.Respawner.RespawnedEvent += OnRespawned;
 	}
 
-	private void OnRespawned(Health sender)
+	private void OnRespawned()
 	{
+		healthComponent.Respawner.RespawnedEvent -= OnRespawned;
+
 		gameObject.SetActive(true);
 
 		Reset();
