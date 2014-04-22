@@ -130,11 +130,6 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	private void Torque(float amount)
-	{
-		rigidbody.AddTorque (new Vector3 (0f, 0f, amount));
-	}
-
 	private void OnKilled(Health sender)
 	{
 		healthComponent.KilledEvent -= OnKilled;
