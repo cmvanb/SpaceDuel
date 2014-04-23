@@ -12,6 +12,8 @@ public class LaserShot : MonoBehaviour
 	[SerializeField]
 	private Renderer laserRenderer;
 
+	public int OwnerIndex { get; set; }
+
 	private float lifeTimeScale;
 
 	void Start()

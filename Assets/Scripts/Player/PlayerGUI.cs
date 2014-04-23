@@ -10,10 +10,10 @@ public class PlayerGUI : MonoBehaviour
 	private GUISkin guiSkin;
 	
 	[SerializeField]
-	private Texture fuelBarTexture;
+	private Texture laserBarTexture;
 
 	[SerializeField]
-	private Texture fuelFullBarTexture;
+	private Texture laserFullBarTexture;
 	
 	[SerializeField]
 	private Texture healthBarTexture;
@@ -24,13 +24,15 @@ public class PlayerGUI : MonoBehaviour
 	// rects
 	private Rect boxRect;
 
-	private Rect fuelRect;
+	private Rect laserRect;
 
-	private Rect fuelFullBarRect;
+	private Rect laserFullBarRect;
 
 	private Rect healthRect;
 	
 	private Rect healthFullBarRect;
+
+	private Rect killsRect;
 
 	// player vars
 	private int playerIndex;
@@ -45,17 +47,19 @@ public class PlayerGUI : MonoBehaviour
 
 		playerName = "Player " + (playerIndex + 1).ToString ();
 
-		playerXOffset = playerIndex * 250f;
+		playerXOffset = playerIndex * 360f;
 
-		boxRect = new Rect (100f + playerXOffset, Screen.height - 100f, 200f, 70f);
+		boxRect = new Rect (100f + playerXOffset, Screen.height - 100f, 340f, 70f);
 
-		fuelRect = new Rect (105f + playerXOffset, Screen.height - 78f, 100f, 70f);
+		laserRect = new Rect (115f + playerXOffset, Screen.height - 78f, 100f, 70f);
 		
-		fuelFullBarRect = new Rect (150f + playerXOffset, Screen.height - 70f, 100f, 10f);
+		laserFullBarRect = new Rect (180f + playerXOffset, Screen.height - 70f, 100f, 10f);
 
-		healthRect = new Rect (105f + playerXOffset, Screen.height - 56f, 100f, 50f);
+		healthRect = new Rect (115f + playerXOffset, Screen.height - 56f, 100f, 50f);
 		
-		healthFullBarRect = new Rect (150f + playerXOffset, Screen.height - 48f, 100f, 10f);
+		healthFullBarRect = new Rect (180f + playerXOffset, Screen.height - 48f, 100f, 10f);
+
+		killsRect = new Rect(300f + playerXOffset, Screen.height - 75f, 200f, 70f);
 	}
 
 	void OnGUI () 
@@ -63,17 +67,23 @@ public class PlayerGUI : MonoBehaviour
 		GUI.skin = guiSkin;
 
 		GUI.Box (boxRect, playerName);
-		GUI.Label (fuelRect, "Fuel");
+		GUI.Label (laserRect, "Laser");
 		GUI.Label (healthRect, "HP");
+
+		GUIStyle killsStyle = new GUIStyle (guiSkin.label);
+
+		killsStyle.fontSize = 32;
+
+		GUI.Label (killsRect, playerComponent.Kills.ToString() + " Kills", killsStyle);
 		
-		GUI.DrawTexture (fuelFullBarRect, fuelFullBarTexture);
+		GUI.DrawTexture (laserFullBarRect, laserFullBarTexture);
 		GUI.DrawTexture (healthFullBarRect, healthFullBarTexture);
 
-		Rect fuelBarRect = new Rect (150f + playerXOffset, Screen.height - 70f, 100f * playerComponent.FuelComponent.Amount, 10f);
+		Rect laserBarRect = new Rect (180f + playerXOffset, Screen.height - 70f, 100f * playerComponent.LaserComponent.ChargeAmount, 10f);
 
-		GUI.DrawTexture (fuelBarRect, fuelBarTexture);
+		GUI.DrawTexture (laserBarRect, laserBarTexture);
 
-		Rect healthBarRect = new Rect (150f + playerXOffset, Screen.height - 48f, 100f * playerComponent.HealthComponent.Amount, 10f);
+		Rect healthBarRect = new Rect (180f + playerXOffset, Screen.height - 48f, 100f * playerComponent.HealthComponent.Amount, 10f);
 		
 		GUI.DrawTexture (healthBarRect, healthBarTexture);
 	}

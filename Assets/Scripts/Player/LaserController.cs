@@ -25,8 +25,6 @@ public class LaserController : MonoBehaviour
 
 	private Transform autoAimTarget;
 
-	private Fuel fuelComponent;
-
 	void Start()
 	{
 		laserChargeObject = transform.FindChild ("LaserCharge");
@@ -38,8 +36,6 @@ public class LaserController : MonoBehaviour
 		playerIndex = GetComponent<PlayerController> ().PlayerIndex;
 
 		autoAimTarget = opponents [0].transform;
-
-		fuelComponent = GetComponent<Fuel> ();
 	}
 
 	public void Charge()
@@ -67,7 +63,7 @@ public class LaserController : MonoBehaviour
 
 	public void Fire()
 	{
-		if (chargeAmount < 1f)
+		if (chargeAmount < 0.5f)
 		{
 			// TODO: play charge failed sound
 
@@ -75,7 +71,7 @@ public class LaserController : MonoBehaviour
 
 			return;
 		}
-		
+
 		AutoAimRaycast ();
 
 		audio.PlayOneShot(AudioClips.LaserShot);
@@ -114,7 +110,7 @@ public class LaserController : MonoBehaviour
 
 			if (healthComponent != null)
 			{
-				healthComponent.Damage(chargeAmount);
+				healthComponent.Damage(playerIndex, chargeAmount);
 			}
 
 			EmitParticlesOnHit emitParticlesOnHit = raycastHit.transform.GetComponent<EmitParticlesOnHit>();

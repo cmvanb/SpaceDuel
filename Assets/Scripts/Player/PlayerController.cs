@@ -10,33 +10,40 @@ public class PlayerController : MonoBehaviour
 	private int playerIndex = 0;
 	public int PlayerIndex { get { return playerIndex; } }
 
+	public int Kills { get; set; }
+
 	private Vector3[] spawnPositions;
 
 	private ParticleSystem rocketParticleEmitter;
 
-	public Fuel FuelComponent { get { return fuelComponent; } }
-	private Fuel fuelComponent;
+	//public Fuel FuelComponent { get { return fuelComponent; } }
+	//private Fuel fuelComponent;
 	
 	public Health HealthComponent { get { return healthComponent; } }
 	private Health healthComponent;
-
-	private LaserController laserComponent;
+	
+	public SemiAutoLaserController LaserComponent { get { return laserComponent; } }
+	private SemiAutoLaserController laserComponent;
 
 	private float targetAngle;
 
 	private string[] axisNames;
 
+	private AudioSource engineSound;
+
 	void Start()
 	{
 		rocketParticleEmitter = transform.FindChild("Emitter").GetComponent<ParticleSystem>();
 
-		fuelComponent = GetComponent<Fuel> ();
+		//fuelComponent = GetComponent<Fuel> ();
 		
 		healthComponent = GetComponent<Health> ();
 
 		healthComponent.KilledEvent += OnKilled;
 
-		laserComponent = GetComponent<LaserController> ();
+		laserComponent = GetComponent<SemiAutoLaserController> ();
+
+		engineSound = transform.FindChild("Engine").GetComponent<AudioSource>();
 
 		targetAngle = transform.eulerAngles.z;
 
@@ -79,10 +86,26 @@ public class PlayerController : MonoBehaviour
 		    || Mathf.Abs(yMovement) > 0f)
 		{
 			Move (xMovement, yMovement);
+
+			if (!engineSound.isPlaying)
+			{
+				engineSound.Play ();
+			}
+		}
+		else
+		{
+			engineSound.Stop ();
 		}
 
 		float triggers = Input.GetAxisRaw (axisNames [4]);
+		
+		if (triggers < 0f)
+		{
+			laserComponent.Fire();
+		}
 
+		// original:
+		/*
 		if (triggers < 0f)
 		{
 			laserComponent.Charge();
@@ -93,7 +116,7 @@ public class PlayerController : MonoBehaviour
 			{
 				laserComponent.Fire();
 			}
-		}
+		}*/
 	}
 
 	void OnCollisionEnter()
@@ -103,7 +126,7 @@ public class PlayerController : MonoBehaviour
 
 	public void Reset()
 	{
-		fuelComponent.Reset();
+		//fuelComponent.Reset();
 
 		healthComponent.Reset();
 		healthComponent.KilledEvent += OnKilled;
@@ -115,23 +138,31 @@ public class PlayerController : MonoBehaviour
 
 	private void Move(float xMovement, float yMovement)
 	{
-		if (fuelComponent.Amount > 0f)
-		{
-			rigidbody.AddForce(new Vector3(xMovement, -yMovement, 0f) * Time.deltaTime * 100f);
-			
-			fuelComponent.Use(fuelUsageRate * Time.deltaTime);
-			
-			Vector3 moveDirection = transform.position + new Vector3 (xMovement, -yMovement, 0f);
-			
-			float moveAngle = 180f - (Mathf.Atan2(transform.position.y - moveDirection.y, transform.position.x - moveDirection.x) * Mathf.Rad2Deg);
+		rigidbody.AddForce(new Vector3(xMovement, -yMovement, 0f) * Time.deltaTime * 100f);
+		
+		Vector3 moveDirection = transform.position + new Vector3 (xMovement, -yMovement, 0f);
+		
+		float moveAngle = 180f - (Mathf.Atan2(transform.position.y - moveDirection.y, transform.position.x - moveDirection.x) * Mathf.Rad2Deg);
 
-			rocketParticleEmitter.transform.eulerAngles = new Vector3(moveAngle + 180f, 90f, 0f);
-			rocketParticleEmitter.Emit(1);
-		}
+		rocketParticleEmitter.transform.eulerAngles = new Vector3(moveAngle + 180f, 90f, 0f);
+		rocketParticleEmitter.Emit(1);
 	}
 
-	private void OnKilled(Health sender)
+	private void OnKilled(int sourcePlayerIndex, Health sender)
 	{
+		for (int i = 0; i < laserComponent.Opponents.Length; ++i)
+		{
+			PlayerController opponentController = laserComponent.Opponents[i].GetComponent<PlayerController>();
+
+			if (opponentController != null
+			    && opponentController.PlayerIndex == sourcePlayerIndex)
+			{
+				opponentController.Kills++;
+			}
+		}
+
+		AudioClips.PlayOneShot (AudioClips.Death);
+
 		healthComponent.KilledEvent -= OnKilled;
 
 		Debug.Log(name + " KILLED");

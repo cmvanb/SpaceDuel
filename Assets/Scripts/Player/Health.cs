@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Health : MonoBehaviour 
 {
-	public event System.Action<Health> KilledEvent;
+	public event System.Action<int, Health> KilledEvent;
 
 	[SerializeField]
 	private GameObject respawnerPrefab;
@@ -29,13 +29,13 @@ public class Health : MonoBehaviour
 	{
 	}
 	
-	public void Damage(float amount)
+	public void Damage(int sourcePlayerIndex, float amount)
 	{
 		this.amount -= amount;
 
 		if (this.amount <= 0f)
 		{
-			Kill();
+			Kill(sourcePlayerIndex);
 		}
 	}
 
@@ -44,13 +44,13 @@ public class Health : MonoBehaviour
 		amount = defaultAmount;
 	}
 
-	public void Kill()
+	public void Kill(int sourcePlayerIndex)
 	{
 		amount = 0f;
 
 		if (KilledEvent != null)
 		{
-			KilledEvent(this);
+			KilledEvent(sourcePlayerIndex, this);
 		}
 		
 		respawner.StartRespawning();
