@@ -33,7 +33,7 @@ public class Health : MonoBehaviour
 	{
 		this.amount -= amount;
 
-		if (this.amount < 0f)
+		if (this.amount <= 0f)
 		{
 			Kill();
 		}

@@ -6,11 +6,19 @@ public class LaserShot : MonoBehaviour
 	[SerializeField]
 	private float decayRate = 0.1f;
 
+	[SerializeField]
+	private Texture laserTexture;
+
+	[SerializeField]
+	private Renderer laserRenderer;
+
 	private float lifeTimeScale;
 
 	void Start()
 	{
 		lifeTimeScale = transform.localScale.x;
+
+		laserRenderer.material.mainTexture = laserTexture;
 	}
 
 	void Update () 

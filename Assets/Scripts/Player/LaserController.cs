@@ -44,11 +44,15 @@ public class LaserController : MonoBehaviour
 
 	public void Charge()
 	{
-		fuelComponent.Use (0.1f * Time.deltaTime);
-
 		if (chargeAmount < 1f)
 		{
 			chargeAmount += chargeRate * Time.deltaTime;
+		}
+		else
+		{
+			chargeAmount = 1f;
+
+			// TODO: play charge full sound
 		}
 
 		if (!laserChargeObject.gameObject.activeSelf) 
@@ -62,10 +66,19 @@ public class LaserController : MonoBehaviour
 	}
 
 	public void Fire()
-	{		
+	{
+		if (chargeAmount < 1f)
+		{
+			// TODO: play charge failed sound
+
+			Reset();
+
+			return;
+		}
+		
 		AutoAimRaycast ();
 
-		audio.PlayOneShot (AudioClips.LaserShot);
+		audio.PlayOneShot(AudioClips.LaserShot);
 
 		Reset();
 	}
@@ -102,6 +115,13 @@ public class LaserController : MonoBehaviour
 			if (healthComponent != null)
 			{
 				healthComponent.Damage(chargeAmount);
+			}
+
+			EmitParticlesOnHit emitParticlesOnHit = raycastHit.transform.GetComponent<EmitParticlesOnHit>();
+
+			if (emitParticlesOnHit != null)
+			{
+				emitParticlesOnHit.Hit(raycastHit);
 			}
 		}
 
